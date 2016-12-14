@@ -8,10 +8,12 @@
 #include <netdb.h>
 #include <string.h>
 #include <arpa/inet.h>
+#include <dirent.h>
 
 #include "lib/protocol.h"
+#include "helper/login_helper.h"
 
-#define PORT    5555
+#define PORT    5500
 #define BACKLOG 10
 
 int s_listenfd = -1;          /*server file descriptor*/
@@ -23,13 +25,6 @@ fd_set s_sockfds;             /*reading file descriptors set*/
 int init_server(void);        /*initialize server*/
 void init_fds(void);          /*initialize file descriptors sets*/
 int accept_new_conn();        /*accept come in connection, return -1 if fail*/
-
-void allow_signup(protocol *);          /*allow user to sign up*/
-void do_signup(protocol *);             /*doing signup*/
-void allow_signin(protocol *);          /*allow user to sign in*/
-void do_signin(protocol *);
-
-
 
 int main(int argc, char const *argv[]) {
   if(!init_server()){
@@ -68,16 +63,27 @@ int main(int argc, char const *argv[]) {
               if(!strcmp(p.p_message,WANT_TO_SIGNUP)){
                 allow_signup(&p);
               } else if(!strcmp(p.p_message,WANT_TO_SIGNIN)){
-                //TODO
                 allow_signin(&p);
               }
             } else if(state == SIGNUP){
               do_signup(&p);
             } else if(state == UNAUTHENTICATE){
-              //TODO
               do_signin(&p);
+            } else if (state == AUTHENTICATE) {
+              if(!strcmp(p.p_message,WANT_TO_PLAY)){
+                send_titles(&p);  /*change state to PLAYING then send 2 titles to client*/
+              } else if(!strcmp(p.p_message,"i want to signout")){
+                //TODO switch state
+              } else{
+                //TODO
+              }
+            } else if(state == PLAYING){
+              if(!strcmp(p.p_message,SEND_TITLE)){
+                title t = p.p_title;
+                send_question(&p, t);
+              }
             } else{
-
+              //TODO
             }
 
             send(i,&p,sizeof(protocol),0);
@@ -139,52 +145,4 @@ int accept_new_conn(){
 
   FD_SET(temp, &s_sockfds);
   return temp;
-}
-
-void allow_signup(protocol *p){
-  p->p_state = SIGNUP;
-  memset(p->p_message,'\0',sizeof(p->p_message));
-  strcat(p->p_message,"you are allowed to sign up");
-}
-
-void do_signup(protocol *p){
-  user u = p->p_user_info;
-  char f_name[256] = "users/";
-  strcat(f_name,u.user_id);
-  FILE *f = fopen(f_name,"r");
-  if(f != NULL){ // User is exist
-    p->p_state = SIGNUP;
-    memset(p->p_message,'\0',sizeof(p->p_message));
-    strcat(p->p_message,"sign up fail");
-  } else{
-    f = fopen(f_name,"w");
-    //TODO save user_info into file.
-    p->p_state = CONNECTED;
-    memset(p->p_message,'\0',sizeof(p->p_message));
-    strcat(p->p_message,"done sign up");
-  }
-}
-
-void allow_signin(protocol *p){
-  p->p_state = UNAUTHENTICATE;
-  memset(p->p_message,'\0',sizeof(p->p_message));
-  strcat(p->p_message,"you are allowed to sign in");
-}
-
-void do_signin(protocol *p){
-  user u = p->p_user_info;
-  char f_name[256] = "users/";
-  strcat(f_name,u.user_id);
-  FILE *f = fopen(f_name,"r");
-  if(f != NULL){
-    char pass[32];
-    fscanf(f,"%s",pass);
-    if(!strcmp(pass,u.password)){
-      p->p_state = AUTHENTICATE;
-    } else{
-      p->p_state = UNAUTHENTICATE;
-    }
-  } else{
-      p->p_state = UNAUTHENTICATE;
-  }
 }

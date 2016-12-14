@@ -1,10 +1,10 @@
 #include <string.h>
-#include "protocol.h"
 #include <stdio.h>
+#include "protocol.h"
 int sockfd;
 
 
-void get_pass(char pass[]){
+int get_pass(char pass[]){
 	int i=0;
 
 	while(1){
@@ -12,17 +12,18 @@ void get_pass(char pass[]){
 		if(pass[i]== '\n') break;
 		//printf("*");
 		i++;
-	};
+	}
 	pass[i]='\0';
+	return 1;
 }
 
 // static struct termios old, new;
 // void initTermios(int echo) {
-// 	tcgetattr(0, &old);
-// 	new = old;
-// 	new.c_lflag &= ~ICANON;
-// 	new.c_lflag &= echo ? ECHO : ~ECHO;
-// 	tcsetattr(0, TCSANOW, &new);
+// 	tcgetattr(0, &old);                       
+// 	new = old;                                
+// 	new.c_lflag &= ~ICANON;                   
+// 	new.c_lflag &= echo ? ECHO : ~ECHO;       
+// 	tcsetattr(0, TCSANOW, &new);              
 // }
 
 // void resetTermios(void) {
@@ -60,9 +61,12 @@ int signUp(protocol *p)
 	memset(p->p_message,'\0',sizeof(p->p_message));
 	do{
 		printf("Account: ");
-		gets(p->p_user_info.user_id);
+		scanf("%s",p->p_user_info.user_id);while(getchar()!='\n');
+		//gets(p->p_user_info.user_id);
 		printf("Password: ");
-		get_pass(p->p_user_info.password);
+		scanf("%s",p->p_user_info.password);while(getchar()!='\n');
+		printf("%s\n",p->p_user_info.password );
+		//get_pass(p->p_user_info.password);
 		printf("\nComfirmation:\n");
 		get_pass(temp);
 		if(!strcmp(p->p_user_info.password,temp)){
@@ -94,9 +98,11 @@ int signIn(protocol *p){
 	if(i==0)return -1;
 	memset(p->p_message,'\0',sizeof(p->p_message));
 	printf("Account: ");
-	gets(p->p_user_info.user_id);
+	scanf("%s",p->p_user_info.user_id);while(getchar()!='\n');
+	//gets(p->p_user_info.user_id);
 	printf("Password: ");
-	get_pass(p->p_user_info.password);
+	scanf("%s",p->p_user_info.password);while(getchar()!='\n');
+	//get_pass(p->p_user_info.password);
 	return 1;
 
 }

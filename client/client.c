@@ -16,12 +16,13 @@
 #include "lib/play.h"
 //-----------------------------
 #define FAIL -1
+
 //-----------------------------
 
 //-----------------------------
 int createConnection(int PORT,char IP[10])
 {
-
+		
 	struct sockaddr_in serverAddr;
 	sockfd = socket(AF_INET,SOCK_STREAM,0);
 	if(sockfd<0){
@@ -51,11 +52,11 @@ void printMenu()
 }
 int main()
 {
-
+	
 	int n,t,i;
 	char c;
 	protocol p;
-	i=createConnection(5555,"127.0.0.1");
+	i=createConnection(5500,"127.0.0.1");
 	if (i==FAIL)return 1;
 	while(1){
 		// bien t de check trang thai cua signup
@@ -65,14 +66,16 @@ int main()
 		while(getchar()!='\n');
 		if(n==3) break;
 		switch(n){
-			case 1:
+			case 1: 
 				loop:
+
 				t=signIn(&p);
+				printf("lala %d\n",t);
 				if (t==-1) continue;
 				send(sockfd,&p,sizeof(protocol),0);
 				recv(sockfd,&p,sizeof(protocol),0);
 				switch(p.p_state){
-					case UNAUTHENTICATE:
+					case UNAUTHENTICATE: 
 						printf("Ten dang nhap hoac password sai!\n");
 						do{
 							printf("Tiep tuc sign in?(y/n)\n");
@@ -82,12 +85,13 @@ int main()
 						continue;
 						break;
 					case AUTHENTICATE:
-						i=play(&p);
+						printf("Dang nhap thanh cong!!\n");
+						i=play(&p,sockfd);
 						if (i==0) continue;
 						break;
 				}
 				break;
-			case 2:
+			case 2: 
 				t=signUp(&p);
 				if(t==0||t==-1) continue;
 				send(sockfd,&p,sizeof(protocol),0);
@@ -98,6 +102,6 @@ int main()
 				}
 				break;
 		}
-
+		
 	}
 }

@@ -1,0 +1,21 @@
+#include <stdio.h>
+
+void main(){
+	FILE *f = fopen("title/sport","r");
+	if(f != NULL){
+		char s[256];
+		fscanf(f,"%[^\n]\n",s);
+		char *token = strtok(s,"|");	// token = id
+		printf("id: %d\n",atoi(token));	
+		token = strtok(NULL,"|");	// token = question
+		printf("question: %s\n",token);
+		token = strtok(NULL,"|");	// token = answer1
+		printf("anser1: %s\n",token);
+		token = strtok(NULL,"|");	// token = answer2
+		printf("anser2: %s\n",token);
+		token = strtok(NULL,"|");	// token = answer3
+		printf("anser3: %s\n",token);
+		token = strtok(NULL,"|");	// token = answer4
+		printf("anser4: %s\n",token);
+	}
+}

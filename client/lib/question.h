@@ -2,6 +2,8 @@
 #define QUESTION_H
 
 typedef struct question_t{
+  char title[256];
+  int question_id;
   char question[256];
   char answer1[256];
   char answer2[256];

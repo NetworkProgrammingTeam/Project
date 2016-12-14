@@ -4,6 +4,7 @@
 #include "user.h"
 #include "question.h"
 #include "answer.h"
+#include "title.h"
 
 enum{
   CONNECTED, SIGNUP, UNAUTHENTICATE, AUTHENTICATE, READY, PLAYING,SC
@@ -16,6 +17,7 @@ enum{
 typedef struct protocol_t{
   int p_state;
   user p_user_info;
+  title p_title;
   question p_question;
   int score;
   answer p_answer;
